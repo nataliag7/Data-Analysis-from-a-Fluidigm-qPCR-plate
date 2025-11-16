@@ -1,5 +1,3 @@
----
-
 # Fluidigm 96-gene Expression Analysis 🧬
 
 This repository contains an analysis of a **96 × 96 Fluidigm gene-expression plate**.
