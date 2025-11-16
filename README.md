@@ -66,10 +66,9 @@ We perform PCA on the 96-gene expression matrix and visualise:
 * **PC1 vs PC2**
 * **PC2 vs PC3**
 
-```markdown
-![PCA PC1 vs PC2](results/pca_pc1_pc2.png)
-![PCA PC2 vs PC3](results/pca_pc2_pc3.png)
-```
+
+![PCA PC1 vs PC2](./results/pca_pc1_pc2.png)
+![PCA PC2 vs PC3](./results/pca_pc2_pc3.png)
 
 These plots show that the three clinical groups (**CD**, **UC**, **CON**) form well-separated clusters in principal component space.
 
@@ -79,9 +78,8 @@ These plots show that the three clinical groups (**CD**, **UC**, **CON**) form w
 
 We run **k-means with k = 3** on the first three principal components and overlay the cluster labels on the PCA plot:
 
-```markdown
-![K-means clusters overlaid on PCA](results/kmeans_pca.png)
-```
+![K-means clusters overlaid on PCA](./results/kmeans_pca.png)
+
 
 The unsupervised clusters correspond closely to the true clinical groups, indicating that the 96-gene panel captures the major disease differences.
 
@@ -109,11 +107,9 @@ We compare mean expression across genes between all pairs of groups:
 
 For each comparison we show a scatterplot with a linear fit and report the **Pearson correlation**:
 
-```markdown
-![Mean expression: UC vs CD](results/uc_vs_cd_corr.png)
-![Mean expression: CD vs CON](results/cd_vs_con_corr.png)
-![Mean expression: UC vs CON](results/uc_vs_con_corr.png)
-```
+![Mean expression: UC vs CD](./results/uc_vs_cd_corr.png)
+![Mean expression: CD vs CON](./results/cd_vs_con_corr.png)
+![Mean expression: UC vs CON](./results/uc_vs_con_corr.png)
 
 The correlations are very high, showing that overall gene expression profiles are broadly similar across conditions, although individual genes can still differ.
 
@@ -135,13 +131,25 @@ These genes represent the strongest expression differences between the groups.
 
 For the top-10 genes in each comparison, we plot the full distribution of expression (boxplots + jitter) across all samples and groups:
 
-```markdown
-![CD vs CON: distribution of top-10 genes](results/topgenes_cd_con.png)
-![CD vs UC: distribution of top-10 genes](results/topgenes_cd_uc.png)
-![UC vs CON: distribution of top-10 genes](results/topgenes_uc_con.png)
-```
+![CD vs CON: distribution of top-10 genes](./results/topgenes_cd_con.png)
+![CD vs UC: distribution of top-10 genes](./results/topgenes_cd_uc.png)
+![UC vs CON: distribution of top-10 genes](./results/topgenes_uc_con.png)
 
 These plots highlight which genes are strongly **up- or down-regulated** between groups, and whether differences are consistent across individual patients.
+
+---
+
+## 📌 Conclusions
+
+The correlation analysis shows a **very strong similarity between UC and CD** (r = 0.939), while both have **lower correlations with controls** (CD vs CON: r = 0.851, UC vs CON: r = 0.798). This pattern is reflected in the expression plots of the **top 10 genes** for each comparison:
+
+* In the **disease vs control** plots (CD vs CON, UC vs CON), many genes show **clear and consistent differences** between groups, making separation relatively simple.
+* For **UC vs CD**, there are still some genes with noticeable differences, but overall the **distributions overlap more**, suggesting that the two diseases share much of their expression profile.
+
+Taken together, these results suggest that:
+
+* **Predicting whether a patient is sick or healthy (disease vs control)** would likely be **easier**,
+* while **distinguishing between UC and CD** based on this 96-gene panel would be **considerably more challenging**.
 
 ---
 
