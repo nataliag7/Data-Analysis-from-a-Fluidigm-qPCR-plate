@@ -1,43 +1,28 @@
-# fluidigm_q2_analysis.R
-#
-# Analysis of 96-gene Fluidigm expression data (Question 2 only)
-# - PCA of samples
-# - K-means clustering on PCA scores
-# - Per-group mean expression per gene
-# - Correlation of group means
-# - Top-10 genes by |log2 fold change| per group comparison
-# - Expression distributions for top genes
-
-# Load libraries ----------------------------------------------------------
+#Libraries
 suppressPackageStartupMessages({
   library(tidyverse)
   library(ggrepel)
 })
 
-# 1. Load data ------------------------------------------------------------
-
-# Path to Fluidigm plate data (tab-separated)
-# Adjust this path if your data file lives somewhere else.
+#Data
 dat <- readr::read_tsv("data/FluidigmPlate.tab", show_col_types = FALSE)
 
-# Split metadata and expression matrix
 gene_cols <- grep("^Gene", names(dat), value = TRUE)
 meta <- dat %>% dplyr::select(sample, group)
 X <- as.matrix(dat[, gene_cols])
 
-# 2. PCA ------------------------------------------------------------------
+##PCA
 
 pca <- prcomp(X, center = TRUE, scale. = FALSE)
 
-# Percent variance explained
+#Percent variance explained
 var_expl <- (pca$sdev^2) / sum(pca$sdev^2)
 
-# Data frame with first 3 PCs + group labels
 scores <- as.data.frame(pca$x[, 1:3])
 colnames(scores) <- c("PC1", "PC2", "PC3")
 plot_df <- dplyr::bind_cols(meta, scores)
 
-# PCA: PC1 vs PC2
+#PCA: PC1 vs PC2
 p12 <- ggplot(plot_df, aes(x = PC1, y = PC2, color = group)) +
   geom_point(size = 2, alpha = 0.9) +
   stat_ellipse(level = 0.95, linewidth = 0.8) +
@@ -49,7 +34,7 @@ p12 <- ggplot(plot_df, aes(x = PC1, y = PC2, color = group)) +
   ) +
   theme_minimal(base_size = 12)
 
-# PCA: PC2 vs PC3
+#PCA: PC2 vs PC3
 p23 <- ggplot(plot_df, aes(x = PC2, y = PC3, color = group)) +
   geom_point(size = 2, alpha = 0.9) +
   stat_ellipse(level = 0.95, linewidth = 0.8) +
@@ -61,7 +46,7 @@ p23 <- ggplot(plot_df, aes(x = PC2, y = PC3, color = group)) +
   ) +
   theme_minimal(base_size = 12)
 
-# 3. K-means clustering on PCs -------------------------------------------
+##K-means clustering on PCs
 
 set.seed(42)
 km <- kmeans(scores[, 1:3], centers = 3, nstart = 50)
@@ -81,7 +66,7 @@ p_km <- ggplot(plot_df, aes(x = PC1, y = PC2, color = cluster, shape = group)) +
   ) +
   theme_minimal(base_size = 12)
 
-# 4. Mean expression per gene and group ----------------------------------
+##Mean expression per gene and group
 
 df_long <- cbind(group = meta$group, as.data.frame(X)) %>%
   as_tibble() %>%
@@ -95,7 +80,7 @@ gene_means <- df_long %>%
   group_by(Gene, group) %>%
   summarise(mean_expression = mean(Expression), .groups = "drop")
 
-# 5. Correlations of group means -----------------------------------------
+##Correlations of group means
 
 gene_means_wide <- gene_means %>%
   pivot_wider(names_from = group, values_from = mean_expression)
@@ -121,7 +106,7 @@ p_uc_cd  <- plot_correlation(gene_means_wide, "UC",  "CD")
 p_cd_con <- plot_correlation(gene_means_wide, "CD",  "CON")
 p_uc_con <- plot_correlation(gene_means_wide, "UC",  "CON")
 
-# 6. Top-10 genes by |log2 fold change| ----------------------------------
+##Top-10 genes by |log2 fold change|
 
 compute_log2fc <- function(df, g1, g2, prefix) {
   df %>%
@@ -148,7 +133,7 @@ top_uc_con <- gene_means_fc %>%
   slice_head(n = 10) %>%
   select(Gene, log2FC_UC_CON)
 
-# 7. Expression distributions for top genes ------------------------------
+##Expression distributions for top genes
 
 genes_cd_con <- top_cd_con %>% arrange(desc(abs(log2FC_CD_CON))) %>% pull(Gene)
 genes_cd_uc  <- top_cd_uc  %>% arrange(desc(abs(log2FC_CD_UC)))  %>% pull(Gene)
@@ -176,7 +161,7 @@ p_dist_cd_con <- make_dist_plot(genes_cd_con, "CD vs CON: distribution of top-10
 p_dist_cd_uc  <- make_dist_plot(genes_cd_uc,  "CD vs UC: distribution of top-10 genes")
 p_dist_uc_con <- make_dist_plot(genes_uc_con, "UC vs CON: distribution of top-10 genes")
 
-# 8. Save plots -----------------------------------------------------------
+##Plots
 
 if (!dir.exists("results")) dir.create("results", recursive = TRUE)
 
